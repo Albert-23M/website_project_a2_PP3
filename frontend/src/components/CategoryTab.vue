@@ -29,7 +29,7 @@
 import GridTab from '@/components/GridTab'
 import ListTab from '@/components/ListTab'
 import CompactTab from '@/components/CompactTab'
-import GridPlaceholder from '@/components/GridPlaceholder'
+import GridPlaceHolder from '@/components/GridPlaceHolder'
 import ListPlaceHolder from '@/components/ListPlaceHolder'
 import CompactPlaceHolder from '@/components/CompactPlaceHolder'
 
@@ -43,7 +43,7 @@ export default {
     'grid': GridTab,
     'list': ListTab,
     'compact': CompactTab,
-    'grid-holder': GridPlaceholder,
+    'grid-holder': GridPlaceHolder,
     'list-holder': ListPlaceHolder,
     'compact-holder': CompactPlaceHolder
   },
