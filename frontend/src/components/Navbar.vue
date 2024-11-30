@@ -38,7 +38,7 @@
               </div>
 
               <div class="input-group-wrap" ref="input-group-wrap" @click="toggleSuggestions">
-                <input class="input-search" type="search" spellcheck="false" placeholder="Search something"
+                <input class="input-search" :class="{active: isLoading}" type="search" spellcheck="false" placeholder="Search something"
                        value="" tabindex="0" maxlength="200" v-model="textInput">
 
                 <!-- Suggestions -->
@@ -141,7 +141,8 @@ export default {
       filteredSuggestionsUsers: [],
       filteredSuggestionsBooks: [],
       errorMessages: [],
-      showSuggestions: false
+      showSuggestions: false,
+      isLoading: false
     }
   },
   created () {
@@ -213,6 +214,7 @@ export default {
       }
     },
     async filterSuggestions () {
+      this.isLoading = true
       this.errorMessages = []
       this.filteredSuggestionsUsers = []
       this.filteredSuggestionsBooks = []
@@ -223,6 +225,7 @@ export default {
           this.$route.query.type === this.type) {
           this.filteredSuggestionsUsers = []
           this.filteredSuggestionsBooks = []
+          this.isLoading = false
           return
         }
 
@@ -242,10 +245,12 @@ export default {
                 id: user.id_user,
                 name: user.name + ' ' + user.surname
               }))
+              this.isLoading = false
             })
             .catch(error => {
               console.error('Error loading users:', error)
               this.filteredSuggestionsUsers = []
+              this.isLoading = false
             }),
           BookService.readTop5MatchedBooks(input)
             .then(response => {
@@ -255,35 +260,51 @@ export default {
                 id: book.id_book,
                 name: book.title
               }))
+              this.isLoading = false
             })
             .catch(error => {
               console.error('Error loading books:', error)
               this.filteredSuggestionsBooks = []
+              this.isLoading = false
             })
         ])
           .then(() => {
             if (!this.filteredSuggestionsUsers.length && !this.filteredSuggestionsBooks.length) {
+              this.errorMessages = []
               this.errorMessages.push({name: 'No match found', type: 'error'})
             }
           })
       } else {
         this.filteredSuggestionsUsers = []
         this.filteredSuggestionsBooks = []
+        this.isLoading = false
       }
     },
     async startSearch () {
       this.filteredSuggestionsUsers = []
       this.filteredSuggestionsBooks = []
 
-      BookService.readBookById(this.id).then(response => {
-        const book = response.data
-        if (book.title !== this.textInput) {
+      if (this.type === 'book') {
+        BookService.readBookById(this.id).then(response => {
+          const book = response.data
+          if (book.title !== this.textInput) {
+            this.$router.push('/not-found')
+          }
+        }).catch(error => {
+          console.error('Error reading a book:', error)
           this.$router.push('/not-found')
-        }
-      }).catch(error => {
-        console.error('Error reading a book:', error)
-        this.$router.push('/not-found')
-      })
+        })
+      } else if (this.type === 'user') {
+        UserService.readUserById(this.id).then(response => {
+          const user = response.data
+          if (user.name + ' ' + user.surname !== this.textInput) {
+            this.$router.push('/not-found')
+          }
+        }).catch(error => {
+          console.error('Error reading a book:', error)
+          this.$router.push('/not-found')
+        })
+      }
 
       if (this.textInput.trim() !== '') {
         this.setPageSearch()
@@ -435,14 +456,38 @@ export default {
 
 .input-search {
   padding-block: calc(var(--panel-gap) * 1.5);
-  padding-right: calc(var(--panel-gap) *9);
+  padding-right: calc(var(--panel-gap) * 9);
   background: transparent;
   border-radius: calc(var(--border-radius) * 100);
   cursor: pointer;
   padding-left: calc(var(--panel-gap) * 7);
-  border: 0;
+  border: 0.125rem solid transparent;
   color: var(--text-color);
   outline: none;
+}
+
+.input-search.active{
+  --border-angle: 0turn;
+  --main-bg: conic-gradient(
+    from var(--border-angle),
+    var(--button-background),
+    var(--button-background) 5%,
+    var(--button-background) 60%,
+    var(--button-background) 95%
+  );
+  --gradient-border: conic-gradient(
+    from var(--border-angle),
+    transparent 25%,
+    var(--text-color),
+    var(--purple-background) 99%,
+    transparent
+  );
+  background: var(--main-bg) padding-box,
+  var(--gradient-border) border-box,
+  var(--main-bg) border-box;
+
+  animation: bg-spin 3s linear infinite;
+  transition: box-shadow 0.3s ease;
 }
 
 .input-search::-webkit-search-cancel-button {
@@ -451,7 +496,11 @@ export default {
 }
 
 .input-search:focus {
-  border: 0.125rem solid var(--text-color);
+  border-color: var(--text-color);
+}
+
+.input-search.active:focus {
+  border-color: transparent;
 }
 
 .search:hover {
@@ -484,5 +533,17 @@ export default {
     border-radius: calc(var(--border-radius)* 9);
     margin-left: var(--panel-gap);
   }
+}
+
+@keyframes bg-spin {
+  to {
+    --border-angle: 1turn;
+  }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
 }
 </style>

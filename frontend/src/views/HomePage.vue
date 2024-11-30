@@ -157,7 +157,7 @@ export default {
       console.log('Searching for:', data)
 
       // If a request is made to the API, it should be async
-      // Ejemplo de Book
+      // Book example
       if (data[1] === 'book') {
         this.searchResults = [
           {
@@ -181,7 +181,7 @@ export default {
           }
         ]
       } else if (data[1] === 'user') {
-        // Ejemplo de user
+        //  User example
         this.searchResults = [
           {
             title: 'Search',
@@ -216,34 +216,7 @@ export default {
         },
         {
           title: 'Followed Users',
-          list: [
-            {
-              user: 'User1',
-              booksRead: [
-                {
-                  title: 'User1\'s Book1',
-                  image: 'image1'
-                },
-                {
-                  title: 'User1\'s Book2',
-                  image: 'image2'
-                }
-              ]
-            },
-            {
-              user: 'User2',
-              booksRead: [
-                {
-                  title: 'User2\'s Book1',
-                  image: 'image1'
-                },
-                {
-                  title: 'User2\'s Book2',
-                  image: 'image2'
-                }
-              ]
-            }
-          ]
+          list: []
         }
       ]
       BookService.readBooks().then(response => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="options-content">
+  <div class="options-content" v-show="column.length > 0">
 
     <div class="header-compact">
       <div class="left">

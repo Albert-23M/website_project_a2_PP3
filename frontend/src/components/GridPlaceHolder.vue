@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: 'GridTabPlaceholder',
+  name: 'GridTabPlaceHolder',
   props: {
     items: Number
   }

@@ -21,6 +21,7 @@ class UserService {
         return Promise.reject(error)
       })
   }
+
   readTop5MatchedUsers (keyword) {
     const config = {
       headers: {
@@ -29,6 +30,24 @@ class UserService {
     }
 
     const path = '/api/v1/users/' + keyword
+
+    return http.get(path, config)
+      .then((res) => {
+        return res
+      })
+      .catch((error) => {
+        return Promise.reject(error)
+      })
+  }
+
+  readUserById (id) {
+    const config = {
+      headers: {
+        'accept': 'application/json'
+      }
+    }
+
+    const path = '/api/v1/users/by-id/' + id
 
     return http.get(path, config)
       .then((res) => {

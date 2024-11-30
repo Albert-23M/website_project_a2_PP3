@@ -134,7 +134,6 @@ export default {
   font-size: var(--font-size-medium);
   font-weight: 700;
   text-align: left;
-  position: relative;
 }
 
 .author{

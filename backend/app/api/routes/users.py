@@ -95,6 +95,56 @@ def read_top5_matched_users(keyword: str) -> Any:
             conexion.close()
             print("Conexión cerrada")
 
+@router.get("/by-id/{user_id}", response_model=UserOut)
+def read_user(user_id: int) -> Any:
+    """
+    Retrieve a specific user by its ID.
+    """
+    try:
+        conexion = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=3306
+        )
+        print("Conexión a la base de datos iniciada")
+
+        if conexion.is_connected():
+            print("Conexión exitosa a la base de datos")
+            cursor = conexion.cursor()
+
+            query_user = """
+                SELECT id_user, name, surname, username, email 
+                FROM users 
+                WHERE id_user = %s
+            """
+            cursor.execute(query_user, (user_id,))
+            row = cursor.fetchone()
+
+            if row is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="User not found with the provided id"
+                )
+
+            user_out = UserOut(
+                id_user=row[0],
+                name=row[1],
+                surname=row[2],
+                username=row[3],
+                email=row[4],
+            )
+            return user_out
+
+    except mysql.connector.Error as e:
+        print(f"Error al conectar a MySQL: {e}")
+        raise HTTPException(status_code=500, detail="Error connecting to the database.")
+    finally:
+        if conexion.is_connected():
+            cursor.close()
+            conexion.close()
+            print("Conexión cerrada")
 
 @router.get("/")
 def read_users(skip: int = 0, limit: int = 100) -> Any:
@@ -235,9 +285,6 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
             conexion.close()
             print("Conexión cerrada")
 
-
-
-
 @router.post("/open", response_model=UserOut)
 def create_user_open(session: SessionDep, user_in: UserCreateOpen) -> Any:
     """
@@ -311,29 +358,3 @@ def read_user_by_email(*, email: str) -> Any:
             cursor.close()
             conexion.close()
             print("Conexión cerrada")
-
-
-@router.get("/by-id", response_model=UserOut)
-def read_user_by_id(user_id: int, session: SessionDep) -> Any:
-    """
-    Get a specific user by id.
-    """
-    user = session.get(User, user_id)
-
-    '''
-    if user == current_user:
-        return user
-    if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="The user doesn't have enough privileges",
-        )
-    '''
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found with the provided id",
-        )
-
-    return user

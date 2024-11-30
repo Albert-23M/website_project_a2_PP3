@@ -1,7 +1,7 @@
 <template>
     <div id="main-page" class="main-page" :class="view" v-if="searchResults && searchResults[0].list">
         <div class="col"  style="padding: var(--panel-gap)" v-for="(column, index) in searchResults" :key="index">
-          <div class="header-content">
+          <div class="header-content" v-show="column.list.length > 0">
             <div class="title-wrap">
               <h3 class="main-page-title" v-if="column.title">
                 {{ column.title }}
