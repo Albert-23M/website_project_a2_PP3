@@ -20,6 +20,6 @@ COPY ./app /app/app/
 EXPOSE 80
 COPY ./alembic.ini /app/
 COPY ./alembic /app/alembic
-COPY ./prestart.sh /app/
+# COPY ./prestart.sh /app/
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
