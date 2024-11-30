@@ -28,7 +28,7 @@ jobs:
       - name: Build Docker image
         run: |
           echo "Building Docker image"
-          docker build -t contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }} -f ./backend/Dockerfile .
+          docker build -t contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }} .
 
       - name: Push Docker image to Azure Container Registry
         run: |
