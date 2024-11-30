@@ -21,16 +21,19 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Log in to Azure Container Registry
+        working-directory: ./backend
         run: |
           echo "Logging in to Azure Container Registry"
           docker login contreg22.azurecr.io -u contreg22 -p ${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }}
 
       - name: Build Docker image
+        working-directory: ./backend
         run: |
           echo "Building Docker image"
           docker build -t contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }} .
 
       - name: Push Docker image to Azure Container Registry
+        working-directory: ./backend
         run: |
           echo "Pushing Docker image to Azure Container Registry"
           docker push contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
