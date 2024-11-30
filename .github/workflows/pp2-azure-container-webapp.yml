@@ -2,7 +2,8 @@ name: V-pp-Build and deploy a container to an Azure Web App
 
 env:
   AZURE_WEBAPP_NAME: backend22  # Nombre de tu aplicación web en Azure
-  REPO: api-service-PP
+  IMAGE_NAME: esproject         # Nombre base de la imagen Docker
+  TAG_NAME: build-tag-1         # Etiqueta personalizada de la imagen Docker
 
 on:
   push:
@@ -19,25 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to Azure Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: "contreg22.azurecr.io"
-          username: "contreg22"
-          password: ${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }}
+        run: |
+          echo "Logging in to Azure Container Registry"
+          docker login contreg22.azurecr.io -u contreg22 -p ${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }}
 
-      - name: Lowercase the repo name and username
-        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+      - name: Build Docker image
+        run: |
+          echo "Building Docker image"
+          docker build -t contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }} -f ./backend/Dockerfile .
 
-      - name: Build and push container image to Azure Container Registry
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: contreg22.azurecr.io/${{ env.REPO }}:${{ github.sha }}
-          file: ./backend/Dockerfile
+      - name: Push Docker image to Azure Container Registry
+        run: |
+          echo "Pushing Docker image to Azure Container Registry"
+          docker push contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}
 
   deploy:
     permissions:
@@ -49,13 +45,9 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Lowercase the repo name and username
-        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          # publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: 'contreg22.azurecr.io/${{ env.REPO }}:${{ github.sha }}'
+          images: 'contreg22.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }}'
