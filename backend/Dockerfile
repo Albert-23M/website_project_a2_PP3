@@ -15,6 +15,8 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 # Instalar mysql-connector-python directamente si no está en el requirements.txt
 RUN pip install mysql-connector-python==9.1.0
 
+RUN pwd
+
 COPY ./app /app/app/
 
 EXPOSE 80
